@@ -1,34 +1,129 @@
-body {
-    background-color: #05053a;
-    color: #fafaff;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    display: grid;
-    place-content: center;
-    overflow-y: auto;
-}
-h1,h2,h3,h4,h5,h6,p {
-    margin-block: 0.5em;
-}
-main {
-    max-width: 960px;
-    margin-inline: auto;
-}
-input,button {
-    padding-inline: 8px;;
-    padding-block: 4px;
+/* App.css */
+* {
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background-color: #fff3e0;
+    color: #333;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .game-container {
+    width: 80%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #ffcc00;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border: 4px dashed #ff5733;
+  }
+  
+  .title {
+    text-align: center;
+    font-size: 36px;
+    color: #ff5733;
+    text-shadow: 2px 2px 5px #fff;
+  }
+  
+  .game-settings {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  select {
+    padding: 12px;
     font-size: 18px;
-}
-button {
-    background: #c6093b;
+    border-radius: 8px;
+    background-color: #ff5733;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .start-button {
+    padding: 12px 30px;
+    background-color: #ff5733;
     color: white;
     border: none;
     border-radius: 8px;
-}
-.row,.col {
-    gap: 8px;
-    align-items: center;
+    cursor: pointer;
+  }
+  
+  .start-button:hover {
+    background-color: #ff2a00;
+  }
+  
+  .score-board {
+    text-align: right;
+    font-size: 18px;
+    color: #4caf50;
+  }
+  
+  .anagram-display {
+    text-align: center;
+    font-size: 32px;
+    margin: 20px 0;
+    color: #2e6db7;
+    text-shadow: 1px 1px 3px #ff5733;
+  }
+  
+  .input-form {
     display: flex;
-}
-.col {
-    flex-direction: column;    
-}
+    justify-content: space-between;
+  }
+  
+  input {
+    padding: 12px;
+    font-size: 18px;
+    width: 70%;
+    border-radius: 8px;
+    border: 2px solid #ff5733;
+  }
+  
+  .submit-button {
+    width: 25%;
+    background-color: #2e6db7;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .submit-button:hover {
+    background-color: #004b87;
+  }
+  
+  .hint-button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #ff2a00;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .hint-button:hover {
+    background-color: #e62b00;
+  }
+  
+  .hint-display {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 18px;
+    color: #ff5733;
+  }
+  
+  button {
+    margin-top: 20px;
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
