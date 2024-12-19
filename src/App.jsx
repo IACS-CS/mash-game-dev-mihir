@@ -1,132 +1,110 @@
-import React, { useState, useEffect } from 'react';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import "./App.css";
 
 const App = () => {
-  // State variables
-  const [anagram, setAnagram] = useState('');
-  const [answer, setAnswer] = useState('');
-  const [score, setScore] = useState(0);
-  const [difficulty, setDifficulty] = useState('easy');
-  const [timer, setTimer] = useState(30); // 30 seconds for timed mode
-  const [isTimerActive, setIsTimerActive] = useState(false);
-  const [hint, setHint] = useState('');
+  const [anagram, setAnagram] = useState("");// scrambled words
+  const [answer, setAnswer] = useState(""); // gives u differnt words
+  const [userInput, setUserInput] = useState(""); // your guess box 
+  const [score, setScore] = useState(0); // if u get it right its 1o points 
+  const [difficulty, setDifficulty] = useState("easy"); // differnt level types 
+  const [hint, setHint] = useState(""); // only on harder level 
+  const [message, setMessage] = useState(""); // right or worng 
+
+  const wordLists = {
+    easy: [
+      "USA", "India", "China", "Brazil", "Italy", "Spain", 
+      "Japan", "Egypt", "Chile", "Peru", "Cuba", "Iran"
+    ],
+    medium: [
+      "Russia", "Mexico", "Germany", "Nigeria", "France", 
+      "Canada", "Turkey", "Sweden", "Poland", "Greece", "Norway", "Argentina"
+    ],
+    hard: [
+      "Portugal", "Thailand", "Vietnam", "Hungary", "Finland", 
+      "Malaysia", "Philippines", "Colombia", "Ukraine", "Singapore", "Morocco", "Croatia"
+    ],
+    expert: [
+      "Zimbabwe", "Kazakhstan", "Ecuador", "Sri Lanka", "Belarus", 
+      "Madagascar", "Guatemala", "Luxembourg", "Azerbaijan", "Kyrgyzstan", 
+      "Liechtenstein", "Turkmenistan"
+    ],
+  };
   
-  // Predefined word lists for different difficulties with country names
-const wordLists = {
-  easy: ['USA', 'Canada', 'India', 'Japan', 'China', 'Brazil', 'Italy', 'Spain'],
-  medium: ['Mexico', 'Russia', 'Australia', 'Germany', 'Argentina', 'France', 'Nigeria'],
-  hard: ['Portugal', 'Thailand', 'Poland', 'Vietnam', 'Sweden', 'Finland', 'Hungary'],
-  expert: ['Iceland', 'Zimbabwe', 'Kazakhstan', 'Ecuador', 'Slovenia', 'Sri Lanka', 'Belarus']
-};
 
-
-  // Randomly pick an anagram based on difficulty
   useEffect(() => {
-    const wordList = wordLists[difficulty];
-    const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
-    const shuffledWord = randomWord.split('').sort(() => Math.random() - 0.5).join('');
-    setAnagram(shuffledWord);
-    setAnswer(randomWord);
+    generateAnagram();
   }, [difficulty]);
 
-  // Timer countdown
-  useEffect(() => {
-    if (isTimerActive && timer > 0) {
-      const interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(interval);
-    } else if (timer === 0) {
-      alert('Time’s up!');
-      resetGame();
-    }
-  }, [isTimerActive, timer]);
-
-  // Handle answer submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (answer.toLowerCase() === e.target.elements.answer.value.toLowerCase()) {
-      setScore(score + 10); // Add points for correct answer
-      alert('Correct!');
-      resetGame();
-    } else {
-      alert('Try again!');
-      nextWord();
-    }
-  };
-
-  // Handle difficulty change
-  const handleDifficultyChange = (e) => {
-    setDifficulty(e.target.value);
-  };
-
-  // Get next word
-  const nextWord = () => {
+  const generateAnagram = () => {
     const wordList = wordLists[difficulty];
     const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
-    const shuffledWord = randomWord.split('').sort(() => Math.random() - 0.5).join('');
+    const shuffledWord = randomWord.split("").sort(() => Math.random() - 0.5).join("");
     setAnagram(shuffledWord);
     setAnswer(randomWord);
+    setHint("");
+    setUserInput("");
+    setMessage("");
   };
 
-  // Reset the game
-  const resetGame = () => {
-    setTimer(30);
-    setIsTimerActive(false);
-    setHint('');
-    nextWord();
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (userInput.toLowerCase() === answer.toLowerCase()) {
+      setScore((prevScore) => prevScore + 10);
+      setMessage("Correct! Well done!");
+      generateAnagram();
+    } else {
+      setMessage("Incorrect! Try again.");
+    }
   };
 
-  // Handle hint for harder levels
-  const handleHint = () => {
-    if (difficulty === 'hard' || difficulty === 'expert') {
-      const letterToReveal = answer.split('').find((letter, index) => hint[index] === undefined);
-      if (letterToReveal) {
-        setHint(prevHint => prevHint + letterToReveal);
-      }
+  const getHint = () => {
+    if (hint.length < answer.length) {
+      setHint(answer.slice(0, hint.length + 1));
     }
   };
 
   return (
     <div className="game-container">
-      <h1 className="title">Anagram Adventure</h1>
-      
-      <div className="game-settings">
-        <select onChange={handleDifficultyChange} value={difficulty}>
+      <h1>Country Anagram Game</h1>
+      <p>Score: {score}</p>
+
+      <div className="settings">
+        <label htmlFor="difficulty">Difficulty: </label>
+        <select
+          id="difficulty"
+          value={difficulty}
+          onChange={(e) => setDifficulty(e.target.value)}
+        >
           <option value="easy">Easy</option>
           <option value="medium">Medium</option>
           <option value="hard">Hard</option>
           <option value="expert">Expert</option>
         </select>
-        
-        <button onClick={() => setIsTimerActive(true)} className="start-button">Start Game</button>
-        <div className="score-board">
-          <p>Score: {score}</p>
-          <p>Time left: {timer}s</p>
-        </div>
       </div>
 
       <div className="anagram-display">
-        <h2> {anagram}</h2>
+        <p>Unscramble this: <strong>{anagram}</strong></p>
       </div>
 
       <form onSubmit={handleSubmit} className="input-form">
         <input
           type="text"
-          name="answer"
-          placeholder="Your Answer"
-          required
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+          placeholder="Your guess"
         />
-        <button type="submit" className="submit-button">Submit</button>
+        <button type="submit">Submit</button>
       </form>
 
-      {difficulty === 'hard' || difficulty === 'expert' ? (
-        <button onClick={handleHint} className="hint-button" disabled={hint.length === answer.length}>Hint</button>
+      {message && <p className="message">{message}</p>}
+
+      {difficulty === "hard" || difficulty === "expert" ? (
+        <button onClick={getHint} className="hint-button">Get a Hint</button>
       ) : null}
 
-      <div className="hint-display">
-        {hint && <p>Hint: {hint}</p>}
-      </div>
+      {hint && <p className="hint">Hint: {hint}</p>}
+
+      <button onClick={generateAnagram} className="next-button">Next Word</button>
     </div>
   );
 };
