@@ -12,6 +12,7 @@ const App = () => {
   const [hint, setHint] = useState(""); // hint for harder difficulty levels
   const [message, setMessage] = useState(""); // feedback message for the user
   const [gameStarted, setGameStarted] = useState(false); // flag to check if the game has started
+  const [lastWord, setLastWord] = useState(""); // track the last used word
 
   // Word lists categorized by difficulty levels
   const wordLists = {
@@ -40,7 +41,7 @@ const App = () => {
       "DJIBOUTI", "BURKINA FASO"
     ],
   };
-  
+
   // useEffect hook to trigger actions when the game starts or difficulty changes
   useEffect(() => {
     if (gameStarted) {
@@ -57,20 +58,45 @@ const App = () => {
   // Function to generate a new anagram from the word list based on the selected difficulty
   const generateAnagram = () => {
     const wordList = wordLists[difficulty]; // select the appropriate word list
-    const randomWord = wordList[Math.floor(Math.random() * wordList.length)]; // pick a random word
-    const shuffledWord = randomWord.split("").sort(() => Math.random() - 0.5).join(""); // shuffle the word
+    let randomWord = wordList[Math.floor(Math.random() * wordList.length)]; // pick a random word
+
+    // Ensure that the new word is not the same as the last one used
+    while (randomWord === lastWord) {
+      randomWord = wordList[Math.floor(Math.random() * wordList.length)];
+    }
+
+    const shuffledWord = shuffleWord(randomWord); // shuffle the word
     setAnagram(shuffledWord); // set the shuffled word as the anagram
     setAnswer(randomWord); // set the original word as the answer
+    setLastWord(randomWord); // update the last used word
     setHint(""); // reset hint
     setUserInput(""); // reset user input
     setMessage(""); // reset feedback message
   };
 
+  // Function to shuffle the word more effectively
+  const shuffleWord = (word) => {
+    const wordArray = word.split("");
+    for (let i = wordArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [wordArray[i], wordArray[j]] = [wordArray[j], wordArray[i]]; // Swap positions
+    }
+    return wordArray.join("");
+  };
+
   // Function to handle form submission when the user submits their guess
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (userInput.toUpperCase() === answer.toUpperCase()) {
-      setScore((prevScore) => prevScore + 10); // increase score for correct answer
+    if (userInput.trim().toUpperCase() === answer.toUpperCase()) { // Trim spaces and compare
+      let points = 0;
+
+      // Assign points based on difficulty
+      if (difficulty === "easy") points = 10;
+      if (difficulty === "medium") points = 15;
+      if (difficulty === "hard") points = 20;
+      if (difficulty === "expert") points = 30;
+
+      setScore((prevScore) => prevScore + points); // increase score based on difficulty
       setMessage("Correct! Well done!"); // set success message
       generateAnagram(); // generate a new anagram
     } else {
