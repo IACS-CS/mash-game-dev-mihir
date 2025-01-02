@@ -16,28 +16,28 @@ const App = () => {
   // Word lists categorized by difficulty levels
   const wordLists = {
     easy: [
-      "USA", "India", "China", "Brazil", "Italy", "Spain", 
-      "Japan", "Egypt", "Chile", "Peru", "Cuba", "Iran",
-      "Nepal", "Oman", "Fiji", "Qatar", "Malta", "Chad"
+      "USA", "INDIA", "CHINA", "BRAZIL", "ITALY", "SPAIN", 
+      "JAPAN", "EGYPT", "CHILE", "PERU", "CUBA", "IRAN",
+      "NEPAL", "OMAN", "FIJI", "QATAR", "MALTA", "CHAD"
     ],
     medium: [
-      "Russia", "Mexico", "Germany", "Nigeria", "France", 
-      "Canada", "Turkey", "Sweden", "Poland", "Greece", 
-      "Norway", "Argentina", "Belgium", "Austria", "Serbia",
-      "Kenya", "Angola", "Libya", "Gabon", "Jamaica"
+      "RUSSIA", "MEXICO", "GERMANY", "NIGERIA", "FRANCE", 
+      "CANADA", "TURKEY", "SWEDEN", "POLAND", "GREECE", 
+      "NORWAY", "ARGENTINA", "BELGIUM", "AUSTRIA", "SERBIA",
+      "KENYA", "ANGOLA", "LIBYA", "GABON", "JAMAICA"
     ],
     hard: [
-      "Portugal", "Thailand", "Vietnam", "Hungary", "Finland", 
-      "Malaysia", "Philippines", "Colombia", "Ukraine", 
-      "Singapore", "Morocco", "Croatia", "Bulgaria", "Slovakia",
-      "Lithuania", "Latvia", "Estonia", "Jordan", "Albania"
+      "PORTUGAL", "THAILAND", "VIETNAM", "HUNGARY", "FINLAND", 
+      "MALAYSIA", "PHILIPPINES", "COLOMBIA", "UKRAINE", 
+      "SINGAPORE", "MOROCCO", "CROATIA", "BULGARIA", "SLOVAKIA",
+      "LITHUANIA", "LATVIA", "ESTONIA", "JORDAN", "ALBANIA"
     ],
     expert: [
-      "Zimbabwe", "Kazakhstan", "Ecuador", "Sri Lanka", "Belarus", 
-      "Madagascar", "Guatemala", "Luxembourg", "Azerbaijan", 
-      "Kyrgyzstan", "Liechtenstein", "Turkmenistan", "Tajikistan",
-      "Uzbekistan", "Mauritania", "Equatorial Guinea", "Eswatini",
-      "Djibouti", "Burkina Faso"
+      "ZIMBABWE", "KAZAKHSTAN", "ECUADOR", "SRI LANKA", "BELARUS", 
+      "MADAGASCAR", "GUATEMALA", "LUXEMBOURG", "AZERBAIJAN", 
+      "KYRGYZSTAN", "LIECHTENSTEIN", "TURKMENISTAN", "TAJIKISTAN",
+      "UZBEKISTAN", "MAURITANIA", "EQUATORIAL GUINEA", "ESWATINI",
+      "DJIBOUTI", "BURKINA FASO"
     ],
   };
   
@@ -69,7 +69,7 @@ const App = () => {
   // Function to handle form submission when the user submits their guess
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (userInput.toLowerCase() === answer.toLowerCase()) {
+    if (userInput.toUpperCase() === answer.toUpperCase()) {
       setScore((prevScore) => prevScore + 10); // increase score for correct answer
       setMessage("Correct! Well done!"); // set success message
       generateAnagram(); // generate a new anagram
