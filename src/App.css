@@ -77,3 +77,21 @@ button:hover {
   font-size: 1rem;
   color: lightgreen;
 }
+
+.start-button {
+  padding: 10px;
+  background-color: #3700ff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-bottom: 20px;
+}
+
+.start-button:hover {
+  background-color: #ff0000;
+}
+
+
