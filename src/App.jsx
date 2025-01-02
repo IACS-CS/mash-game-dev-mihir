@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 
+// The main component of the app
 const App = () => {
-  const [anagram, setAnagram] = useState(""); // scrambled words
-  const [answer, setAnswer] = useState(""); // correct word
-  const [userInput, setUserInput] = useState(""); // user guess
-  const [score, setScore] = useState(0); // score
-  const [difficulty, setDifficulty] = useState("easy"); // difficulty level
-  const [hint, setHint] = useState(""); // hint for harder levels
-  const [message, setMessage] = useState(""); // feedback message
-  const [gameStarted, setGameStarted] = useState(false); // game started flag
+  // State variables to manage different aspects of the game
+  const [anagram, setAnagram] = useState(""); // scrambled word to display
+  const [answer, setAnswer] = useState(""); // correct word to check against
+  const [userInput, setUserInput] = useState(""); // user's guess input
+  const [score, setScore] = useState(0); // user's score
+  const [difficulty, setDifficulty] = useState("easy"); // difficulty level of the game
+  const [hint, setHint] = useState(""); // hint for harder difficulty levels
+  const [message, setMessage] = useState(""); // feedback message for the user
+  const [gameStarted, setGameStarted] = useState(false); // flag to check if the game has started
 
+  // Word lists categorized by difficulty levels
   const wordLists = {
     easy: [
       "USA", "India", "China", "Brazil", "Italy", "Spain", 
@@ -38,51 +41,57 @@ const App = () => {
     ],
   };
   
-
+  // useEffect hook to trigger actions when the game starts or difficulty changes
   useEffect(() => {
     if (gameStarted) {
-      generateAnagram();
+      generateAnagram(); // generate a new anagram when the game starts or difficulty changes
     }
   }, [difficulty, gameStarted]);
 
+  // Function to start the game
   const startGame = () => {
     setGameStarted(true);
     generateAnagram();
   };
 
+  // Function to generate a new anagram from the word list based on the selected difficulty
   const generateAnagram = () => {
-    const wordList = wordLists[difficulty];
-    const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
-    const shuffledWord = randomWord.split("").sort(() => Math.random() - 0.5).join("");
-    setAnagram(shuffledWord);
-    setAnswer(randomWord);
-    setHint("");
-    setUserInput("");
-    setMessage("");
+    const wordList = wordLists[difficulty]; // select the appropriate word list
+    const randomWord = wordList[Math.floor(Math.random() * wordList.length)]; // pick a random word
+    const shuffledWord = randomWord.split("").sort(() => Math.random() - 0.5).join(""); // shuffle the word
+    setAnagram(shuffledWord); // set the shuffled word as the anagram
+    setAnswer(randomWord); // set the original word as the answer
+    setHint(""); // reset hint
+    setUserInput(""); // reset user input
+    setMessage(""); // reset feedback message
   };
 
+  // Function to handle form submission when the user submits their guess
   const handleSubmit = (e) => {
     e.preventDefault();
     if (userInput.toLowerCase() === answer.toLowerCase()) {
-      setScore((prevScore) => prevScore + 10);
-      setMessage("Correct! Well done!");
-      generateAnagram();
+      setScore((prevScore) => prevScore + 10); // increase score for correct answer
+      setMessage("Correct! Well done!"); // set success message
+      generateAnagram(); // generate a new anagram
     } else {
-      handleWrongAnswer();
+      handleWrongAnswer(); // handle incorrect answer
     }
   };
 
+  // Function to handle incorrect answers
   const handleWrongAnswer = () => {
-    setScore((prevScore) => (prevScore >= 10 ? prevScore - 10 : 0));
-    setMessage("Incorrect! Try again.");
+    setScore((prevScore) => (prevScore >= 10 ? prevScore - 10 : 0)); // decrease score or set to zero
+    setMessage("Incorrect! Try again."); // set failure message
   };
 
+  // Function to provide a hint for harder difficulty levels
   const getHint = () => {
     if (hint.length < answer.length) {
-      setHint(answer.slice(0, hint.length + 1));
+      setHint(answer.slice(0, hint.length + 1)); // reveal one more character of the answer as hint
     }
   };
 
+  // JSX to render the game interface
   return (
     <div className="game-container">
       <h1>Country Anagram Game</h1>
