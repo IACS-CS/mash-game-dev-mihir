@@ -1,120 +1,130 @@
 import React, { useState, useEffect } from "react";
-import "./App.css";
+import "./App.css"; // Importing CSS for styling
 
-// The main component of the app
+// Main App Component
 const App = () => {
-  // State variables to manage different aspects of the game
-  const [anagram, setAnagram] = useState(""); // scrambled word to display
-  const [answer, setAnswer] = useState(""); // correct word to check against
-  const [userInput, setUserInput] = useState(""); // user's guess input
-  const [score, setScore] = useState(0); // user's score
-  const [difficulty, setDifficulty] = useState("easy"); // difficulty level of the game
-  const [hint, setHint] = useState(""); // hint for harder difficulty levels
-  const [message, setMessage] = useState(""); // feedback message for the user
-  const [gameStarted, setGameStarted] = useState(false); // flag to check if the game has started
-  const [lastWord, setLastWord] = useState(""); // track the last used word
+  // Game states
+  const [anagram, setAnagram] = useState(""); // Current scrambled word
+  const [answer, setAnswer] = useState(""); // Correct answer for the anagram
+  const [userInput, setUserInput] = useState(""); // User's guess
+  const [score, setScore] = useState(0); // Player's current score
+  const [difficulty, setDifficulty] = useState("easy"); // Current difficulty level
+  const [hint, setHint] = useState(""); // Current hint for the word
+  const [message, setMessage] = useState(""); // Feedback message (correct/incorrect)
+  const [gameStarted, setGameStarted] = useState(false); // Whether the game has started
+  const [lastWord, setLastWord] = useState(""); // Last word to avoid repeats
+  const [hintsUsed, setHintsUsed] = useState(0); // Track hints used by player
+  const [leaderboard, setLeaderboard] = useState(() =>
+    JSON.parse(localStorage.getItem("leaderboard")) || []
+  ); // Load leaderboard from localStorage
+  const [showLeaderboard, setShowLeaderboard] = useState(false); // Show or hide leaderboard
 
-  // Word lists categorized by difficulty levels
+  // Word lists for each difficulty level
   const wordLists = {
     easy: [
       "USA", "INDIA", "CHINA", "BRAZIL", "ITALY", "SPAIN", 
       "JAPAN", "EGYPT", "CHILE", "PERU", "CUBA", "IRAN",
-      "NEPAL", "OMAN", "FIJI", "QATAR", "MALTA", "CHAD"
+      "NEPAL", "OMAN", "FIJI", "QATAR", "MALTA", "CHAD",
     ],
     medium: [
       "RUSSIA", "MEXICO", "GERMANY", "NIGERIA", "FRANCE", 
       "CANADA", "TURKEY", "SWEDEN", "POLAND", "GREECE", 
       "NORWAY", "ARGENTINA", "BELGIUM", "AUSTRIA", "SERBIA",
-      "KENYA", "ANGOLA", "LIBYA", "GABON", "JAMAICA"
+      "KENYA", "ANGOLA", "LIBYA", "GABON", "JAMAICA",
     ],
     hard: [
       "PORTUGAL", "THAILAND", "VIETNAM", "HUNGARY", "FINLAND", 
       "MALAYSIA", "PHILIPPINES", "COLOMBIA", "UKRAINE", 
       "SINGAPORE", "MOROCCO", "CROATIA", "BULGARIA", "SLOVAKIA",
-      "LITHUANIA", "LATVIA", "ESTONIA", "JORDAN", "ALBANIA"
+      "LITHUANIA", "LATVIA", "ESTONIA", "JORDAN", "ALBANIA",
     ],
     expert: [
       "ZIMBABWE", "KAZAKHSTAN", "ECUADOR", "SRI LANKA", "BELARUS", 
       "MADAGASCAR", "GUATEMALA", "LUXEMBOURG", "AZERBAIJAN", 
       "KYRGYZSTAN", "LIECHTENSTEIN", "TURKMENISTAN", "TAJIKISTAN",
       "UZBEKISTAN", "MAURITANIA", "EQUATORIAL GUINEA", "ESWATINI",
-      "DJIBOUTI", "BURKINA FASO"
+      "DJIBOUTI", "BURKINA FASO",
     ],
   };
 
-  // useEffect hook to trigger actions when the game starts or difficulty changes
-  useEffect(() => {
-    if (gameStarted) {
-      generateAnagram(); // generate a new anagram when the game starts or difficulty changes
-    }
-  }, [difficulty, gameStarted]);
-
-  // Function to start the game
+  // Start a new game or reset the game
   const startGame = () => {
     setGameStarted(true);
-    generateAnagram();
+    setScore(0); // Reset score
+    setHintsUsed(0); // Reset hints
+    generateAnagram(); // Generate the first anagram
   };
 
-  // Function to generate a new anagram from the word list based on the selected difficulty
+  // Generate a new anagram
   const generateAnagram = () => {
-    const wordList = wordLists[difficulty]; // select the appropriate word list
-    let randomWord = wordList[Math.floor(Math.random() * wordList.length)]; // pick a random word
+    const wordList = wordLists[difficulty]; // Select word list based on difficulty
+    let randomWord = wordList[Math.floor(Math.random() * wordList.length)];
 
-    // Ensure that the new word is not the same as the last one used
+    // Avoid repeating the last word
     while (randomWord === lastWord) {
       randomWord = wordList[Math.floor(Math.random() * wordList.length)];
     }
 
-    const shuffledWord = shuffleWord(randomWord); // shuffle the word
-    setAnagram(shuffledWord); // set the shuffled word as the anagram
-    setAnswer(randomWord); // set the original word as the answer
-    setLastWord(randomWord); // update the last used word
-    setHint(""); // reset hint
-    setUserInput(""); // reset user input
-    setMessage(""); // reset feedback message
+    setAnagram(shuffleWord(randomWord)); // Scramble the word
+    setAnswer(randomWord); // Save the correct answer
+    setLastWord(randomWord); // Update last word
+    setHint(""); // Reset the hint
+    setUserInput(""); // Clear user input
+    setMessage(""); // Clear feedback message
   };
 
-  // Function to shuffle the word more effectively
+  // Shuffle the letters of a word
   const shuffleWord = (word) => {
     const wordArray = word.split("");
     for (let i = wordArray.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [wordArray[i], wordArray[j]] = [wordArray[j], wordArray[i]]; // Swap positions
+      [wordArray[i], wordArray[j]] = [wordArray[j], wordArray[i]];
     }
     return wordArray.join("");
   };
 
-  // Function to handle form submission when the user submits their guess
+  // Handle the form submission when user submits a guess
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (userInput.trim().toUpperCase() === answer.toUpperCase()) { // Trim spaces and compare
-      let points = 0;
-
-      // Assign points based on difficulty
-      if (difficulty === "easy") points = 10;
-      if (difficulty === "medium") points = 15;
-      if (difficulty === "hard") points = 20;
-      if (difficulty === "expert") points = 30;
-
-      setScore((prevScore) => prevScore + points); // increase score based on difficulty
-      setMessage("Correct! Well done!"); // set success message
-      generateAnagram(); // generate a new anagram
+    if (userInput.trim().toUpperCase() === answer.toUpperCase()) {
+      // Correct answer
+      let points = difficulty === "easy" ? 10 : difficulty === "medium" ? 15 : difficulty === "hard" ? 20 : 30;
+      setScore((prev) => prev + points); // Add points to score
+      setMessage("Correct! Well done!");
+      generateAnagram(); // Generate a new word
     } else {
-      handleWrongAnswer(); // handle incorrect answer
+      // Incorrect answer
+      handleWrongAnswer();
     }
   };
 
-  // Function to handle incorrect answers
+  // Handle incorrect answers
   const handleWrongAnswer = () => {
-    setScore((prevScore) => (prevScore >= 10 ? prevScore - 10 : 0)); // decrease score or set to zero
-    setMessage("Incorrect! Try again."); // set failure message
+    setScore((prev) => (prev >= 10 ? prev - 10 : 0)); // Deduct points, minimum 0
+    setMessage("Incorrect! Try again.");
   };
 
-  // Function to provide a hint for harder difficulty levels
+  // Provide a hint for the current word (only for hard and expert)
   const getHint = () => {
-    if (hint.length < answer.length) {
-      setHint(answer.slice(0, hint.length + 1)); // reveal one more character of the answer as hint
+    if (["hard", "expert"].includes(difficulty)) {
+      if (hintsUsed < 3 && hint.length < answer.length) {
+        setHintsUsed((prev) => prev + 1); // Increment hints used
+        setHint(answer.slice(0, hint.length + 1)); // Reveal one more letter
+      } else {
+        setMessage("No more hints available!"); // If all hints are used
+      }
+    } else {
+      setMessage("Hints are not available for this difficulty level!");
     }
+  };
+
+  // Save the leaderboard to localStorage
+  const saveToLeaderboard = () => {
+    const name = prompt("Enter your name for the leaderboard:");
+    const newEntry = { name, score };
+    const updatedLeaderboard = [...leaderboard, newEntry].sort((a, b) => b.score - a.score).slice(0, 5);
+    setLeaderboard(updatedLeaderboard); // Update leaderboard
+    localStorage.setItem("leaderboard", JSON.stringify(updatedLeaderboard)); // Save to localStorage
   };
 
   // JSX to render the game interface
@@ -124,7 +134,9 @@ const App = () => {
       <p>Score: {score}</p>
 
       {!gameStarted ? (
-        <button onClick={startGame} className="start-button">Start Game</button>
+        <button onClick={startGame} className="start-button">
+          Start Game
+        </button>
       ) : (
         <>
           <div className="settings">
@@ -157,14 +169,43 @@ const App = () => {
 
           {message && <p className="message">{message}</p>}
 
-          {(difficulty === "hard" || difficulty === "expert") && (
-            <button onClick={getHint} className="hint-button">Get a Hint</button>
+          {["hard", "expert"].includes(difficulty) && (
+            <button onClick={getHint} className="hint-button">
+              Get a Hint
+            </button>
           )}
-
           {hint && <p className="hint">Hint: {hint}</p>}
 
-          <button onClick={generateAnagram} className="next-button">Next Word</button>
+          <button onClick={generateAnagram} className="next-button">
+            Next Word
+          </button>
         </>
+      )}
+
+      <button
+        onClick={() => setShowLeaderboard((prev) => !prev)}
+        className="leaderboard-button"
+      >
+        {showLeaderboard ? "Hide Leaderboard" : "Show Leaderboard"}
+      </button>
+
+      {showLeaderboard && (
+        <div className="leaderboard">
+          <h2>Leaderboard</h2>
+          <ul>
+            {leaderboard.map((entry, index) => (
+              <li key={index}>
+                {entry.name}: {entry.score}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {gameStarted && (
+        <button onClick={saveToLeaderboard} className="save-button">
+          Save Score
+        </button>
       )}
     </div>
   );
