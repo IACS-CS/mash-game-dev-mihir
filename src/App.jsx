@@ -8,10 +8,11 @@ const App = () => {
   const [answer, setAnswer] = useState(""); // Correct answer for the anagram
   const [userInput, setUserInput] = useState(""); // User's guess
   const [score, setScore] = useState(0); // Player's current score
-  const [difficulty, setDifficulty] = useState("easy"); // Current difficulty level
+  const [level, setLevel] = useState("easy"); // Current level (easy, medium, hard, expert)
   const [hint, setHint] = useState(""); // Current hint for the word
   const [message, setMessage] = useState(""); // Feedback message (correct/incorrect)
   const [gameStarted, setGameStarted] = useState(false); // Whether the game has started
+  const [correctGuesses, setCorrectGuesses] = useState(0); // Number of correct guesses
   const [lastWord, setLastWord] = useState(""); // Last word to avoid repeats
   const [hintsUsed, setHintsUsed] = useState(0); // Track hints used by player
   const [leaderboard, setLeaderboard] = useState(() =>
@@ -51,13 +52,14 @@ const App = () => {
   const startGame = () => {
     setGameStarted(true);
     setScore(0); // Reset score
+    setCorrectGuesses(0); // Reset correct guesses
     setHintsUsed(0); // Reset hints
     generateAnagram(); // Generate the first anagram
   };
 
   // Generate a new anagram
   const generateAnagram = () => {
-    const wordList = wordLists[difficulty]; // Select word list based on difficulty
+    const wordList = wordLists[level]; // Select word list based on level
     let randomWord = wordList[Math.floor(Math.random() * wordList.length)];
 
     // Avoid repeating the last word
@@ -88,10 +90,16 @@ const App = () => {
     e.preventDefault();
     if (userInput.trim().toUpperCase() === answer.toUpperCase()) {
       // Correct answer
-      let points = difficulty === "easy" ? 10 : difficulty === "medium" ? 15 : difficulty === "hard" ? 20 : 30;
+      let points = level === "easy" ? 10 : level === "medium" ? 15 : level === "hard" ? 20 : 30;
       setScore((prev) => prev + points); // Add points to score
       setMessage("Correct! Well done!");
+      setCorrectGuesses(prev => prev + 1); // Increment correct guesses
       generateAnagram(); // Generate a new word
+
+      // Check if the player has guessed enough words to level up
+      if (correctGuesses + 1 >= (level === "easy" ? 10 : level === "medium" ? 10 : level === "hard" ? 7 : 5)) {
+        setMessage(`You've guessed 10 words correctly! Click to go to the next level.`);
+      }
     } else {
       // Incorrect answer
       handleWrongAnswer();
@@ -107,7 +115,7 @@ const App = () => {
 
   // Provide a hint for the current word (only for hard and expert)
   const getHint = () => {
-    if (["hard", "expert"].includes(difficulty)) {
+    if (["hard", "expert"].includes(level)) {
       if (hintsUsed < Infinity && hint.length < answer.length) {
         setHintsUsed((prev) => prev + 1); // Increment hints used
         setHint(answer.slice(0, hint.length + 1)); // Reveal one more letter
@@ -119,6 +127,19 @@ const App = () => {
     }
   };
 
+  // Move to the next level
+  const nextLevel = () => {
+    if (level === "easy") {
+      setLevel("medium");
+    } else if (level === "medium") {
+      setLevel("hard");
+    } else if (level === "hard") {
+      setLevel("expert");
+    }
+    setCorrectGuesses(0); // Reset correct guesses for the next level
+    generateAnagram(); // Generate a new word for the new level
+  };
+
   // Save the leaderboard to localStorage
   const saveToLeaderboard = () => {
     const name = prompt("Enter your name for the leaderboard:");
@@ -127,13 +148,6 @@ const App = () => {
     setLeaderboard(updatedLeaderboard); // Update leaderboard
     localStorage.setItem("leaderboard", JSON.stringify(updatedLeaderboard)); // Save to localStorage
   };
-
-  // Use useEffect to regenerate anagram whenever difficulty changes
-  useEffect(() => {
-    if (gameStarted) {
-      generateAnagram(); // Regenerate the anagram when difficulty changes
-    }
-  }, [difficulty]); // Runs whenever difficulty is changed
 
   // JSX to render the game interface
   return (
@@ -147,20 +161,6 @@ const App = () => {
         </button>
       ) : (
         <>
-          <div className="settings">
-            <label htmlFor="difficulty">Difficulty: </label>
-            <select
-              id="difficulty"
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
-            >
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-              <option value="expert">Expert</option>
-            </select>
-          </div>
-
           <div className="anagram-display">
             <p>Unscramble this: <strong>{anagram}</strong></p>
           </div>
@@ -177,16 +177,18 @@ const App = () => {
 
           {message && <p className="message">{message}</p>}
 
-          {["hard", "expert"].includes(difficulty) && (
+          {["hard", "expert"].includes(level) && (
             <button onClick={getHint} className="hint-button">
               Get a Hint
             </button>
           )}
           {hint && <p className="hint">Hint: {hint}</p>}
 
-          <button onClick={generateAnagram} className="next-button">
-            Next Word
-          </button>
+          {correctGuesses >= (level === "easy" ? 10 : level === "medium" ? 10 : level === "hard" ? 7 : 5) && (
+            <button onClick={nextLevel} className="next-level-button">
+              Next Level
+            </button>
+          )}
         </>
       )}
 
