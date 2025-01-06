@@ -102,6 +102,7 @@ const App = () => {
   const handleWrongAnswer = () => {
     setScore((prev) => (prev >= 10 ? prev - 10 : 0)); // Deduct points, minimum 0
     setMessage("Incorrect! Try again.");
+    generateAnagram(); // Generate a new word after incorrect answer
   };
 
   // Provide a hint for the current word (only for hard and expert)
@@ -126,6 +127,13 @@ const App = () => {
     setLeaderboard(updatedLeaderboard); // Update leaderboard
     localStorage.setItem("leaderboard", JSON.stringify(updatedLeaderboard)); // Save to localStorage
   };
+
+  // Use useEffect to regenerate anagram whenever difficulty changes
+  useEffect(() => {
+    if (gameStarted) {
+      generateAnagram(); // Regenerate the anagram when difficulty changes
+    }
+  }, [difficulty]); // Runs whenever difficulty is changed
 
   // JSX to render the game interface
   return (
