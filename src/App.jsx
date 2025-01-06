@@ -108,7 +108,7 @@ const App = () => {
   // Provide a hint for the current word (only for hard and expert)
   const getHint = () => {
     if (["hard", "expert"].includes(difficulty)) {
-      if (hintsUsed < 3 && hint.length < answer.length) {
+      if (hintsUsed < Infinity && hint.length < answer.length) {
         setHintsUsed((prev) => prev + 1); // Increment hints used
         setHint(answer.slice(0, hint.length + 1)); // Reveal one more letter
       } else {
