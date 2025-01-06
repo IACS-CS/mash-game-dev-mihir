@@ -97,8 +97,8 @@ const App = () => {
       generateAnagram(); // Generate a new word
 
       // Check if the player has guessed enough words to level up
-      if (correctGuesses + 1 >= (level === "easy" ? 10 : level === "medium" ? 10 : level === "hard" ? 7 : 5)) {
-        setMessage(`You've guessed 10 words correctly! Click to go to the next level.`);
+      if (correctGuesses + 1 >= (level === "easy" ? 8 : level === "medium" ? 6 : level === "hard" ? 5 : 3)) {
+        setMessage(`You've guessed the words correctly! Click to go to the next level.`);
       }
     } else {
       // Incorrect answer
