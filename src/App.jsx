@@ -14,17 +14,48 @@ const App = () => {
   const [gameStarted, setGameStarted] = useState(false); // Whether the game has started
   const [lastWord, setLastWord] = useState(""); // Last word to avoid repeats
   const [hintsUsed, setHintsUsed] = useState(0); // Track hints used by player
-  const [leaderboard, setLeaderboard] = useState(
-    () => JSON.parse(localStorage.getItem("leaderboard")) || []
-  ); // Load leaderboard from localStorage
-  const [showLeaderboard, setShowLeaderboard] = useState(false); // Show or hide leaderboard
 
   // Word lists for each difficulty level
   const wordLists = {
-    easy: ["USA", "INDIA", "CHINA", "BRAZIL", "ITALY", "SPAIN", "JAPAN", "EGYPT", "CHILE", "PERU", "CUBA", "IRAN", "NEPAL", "OMAN", "FIJI", "QATAR", "MALTA", "CHAD"],
-    medium: ["RUSSIA", "MEXICO", "GERMANY", "NIGERIA", "FRANCE", "CANADA", "TURKEY", "SWEDEN", "POLAND", "GREECE", "NORWAY", "ARGENTINA", "BELGIUM", "AUSTRIA", "SERBIA", "KENYA", "ANGOLA", "LIBYA", "GABON", "JAMAICA"],
-    hard: ["PORTUGAL", "THAILAND", "VIETNAM", "HUNGARY", "FINLAND", "MALAYSIA", "PHILIPPINES", "COLOMBIA", "UKRAINE", "SINGAPORE", "MOROCCO", "CROATIA", "BULGARIA", "SLOVAKIA", "LITHUANIA", "LATVIA", "ESTONIA", "JORDAN", "ALBANIA"],
-    expert: ["ZIMBABWE", "KAZAKHSTAN", "ECUADOR", "SRI LANKA", "BELARUS", "MADAGASCAR", "GUATEMALA", "LUXEMBOURG", "AZERBAIJAN", "KYRGYZSTAN", "LIECHTENSTEIN", "TURKMENISTAN", "TAJIKISTAN", "UZBEKISTAN", "MAURITANIA", "EQUATORIAL GUINEA", "ESWATINI", "DJIBOUTI", "BURKINA FASO"],
+    easy: [
+      "USA", "INDIA", "CHINA", "BRAZIL", "ITALY", "SPAIN", "JAPAN", "EGYPT", 
+      "CHILE", "PERU", "CUBA", "IRAN", "NEPAL", "OMAN", "FIJI", "QATAR", 
+      "MALTA", "CHAD", "KENYA", "ARGENTINA", "SOUTH KOREA", "MEXICO", "SINGAPORE"
+    ],
+    medium: [
+      "RUSSIA", "MEXICO", "GERMANY", "NIGERIA", "FRANCE", "CANADA", "TURKEY", 
+      "SWEDEN", "POLAND", "GREECE", "NORWAY", "ARGENTINA", "BELGIUM", "AUSTRIA", 
+      "SERBIA", "KENYA", "ANGOLA", "LIBYA", "GABON", "JAMAICA", "HUNGARY", 
+      "COLOMBIA", "TUNISIA", "PHILIPPINES"
+    ],
+    hard: [
+      "PORTUGAL", "THAILAND", "VIETNAM", "HUNGARY", "FINLAND", "MALAYSIA", 
+      "PHILIPPINES", "COLOMBIA", "UKRAINE", "SINGAPORE", "MOROCCO", "CROATIA", 
+      "BULGARIA", "SLOVAKIA", "LITHUANIA", "LATVIA", "ESTONIA", "JORDAN", 
+      "ALBANIA", "ROMANIA", "BOLIVIA", "NEPAL", "ZAMBIA", "CAMBODIA"
+    ],
+    expert: [
+      "ZIMBABWE", "KAZAKHSTAN", "ECUADOR", "SRI LANKA", "BELARUS", "MADAGASCAR", 
+      "GUATEMALA", "LUXEMBOURG", "AZERBAIJAN", "KYRGYZSTAN", "LIECHTENSTEIN", 
+      "TURKMENISTAN", "TAJIKISTAN", "UZBEKISTAN", "MAURITANIA", "EQUATORIAL GUINEA", 
+      "ESWATINI", "DJIBOUTI", "BURKINA FASO", "PARAGUAY", "SUDAN", "MALAWI", 
+      "MONACO", "MALDIVES", "SAN MARINO"
+    ],
+    allCountries: [
+      "USA", "INDIA", "CHINA", "BRAZIL", "ITALY", "SPAIN", "JAPAN", "EGYPT", 
+      "RUSSIA", "MEXICO", "GERMANY", "NIGERIA", "FRANCE", "CANADA", "TURKEY", 
+      "SWEDEN", "POLAND", "GREECE", "NORWAY", "ARGENTINA", "BELGIUM", "AUSTRIA", 
+      "SERBIA", "KENYA", "ANGOLA", "LIBYA", "GABON", "JAMAICA", "HUNGARY", 
+      "COLOMBIA", "TUNISIA", "PHILIPPINES", "PORTUGAL", "THAILAND", "VIETNAM", 
+      "HUNGARY", "FINLAND", "MALAYSIA", "PHILIPPINES", "COLOMBIA", "UKRAINE", 
+      "SINGAPORE", "MOROCCO", "CROATIA", "BULGARIA", "SLOVAKIA", "LITHUANIA", 
+      "LATVIA", "ESTONIA", "JORDAN", "ALBANIA", "ROMANIA", "BOLIVIA", "NEPAL", 
+      "ZAMBIA", "CAMBODIA", "ZIMBABWE", "KAZAKHSTAN", "ECUADOR", "SRI LANKA", 
+      "BELARUS", "MADAGASCAR", "GUATEMALA", "LUXEMBOURG", "AZERBAIJAN", "KYRGYZSTAN", 
+      "LIECHTENSTEIN", "TURKMENISTAN", "TAJIKISTAN", "UZBEKISTAN", "MAURITANIA", 
+      "EQUATORIAL GUINEA", "ESWATINI", "DJIBOUTI", "BURKINA FASO", "PARAGUAY", 
+      "SUDAN", "MALAWI", "MONACO", "MALDIVES", "SAN MARINO"
+    ]
   };
 
   // Start a new game or reset the game
@@ -55,24 +86,24 @@ const App = () => {
 
   // Shuffle the letters of a word
   const shuffleWord = (word) => {
-    const wordArray = word.split("");
+    const wordArray = word.split(""); // Split the word into an array of characters
     for (let i = wordArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [wordArray[i], wordArray[j]] = [wordArray[j], wordArray[i]];
+      const j = Math.floor(Math.random() * (i + 1)); // Random index
+      [wordArray[i], wordArray[j]] = [wordArray[j], wordArray[i]]; // Swap characters
     }
-    return wordArray.join("");
+    return wordArray.join(""); // Join the array back into a word
   };
 
   // Handle the form submission when user submits a guess
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (userInput.trim().toUpperCase() === answer.toUpperCase()) {
-      let points = difficulty === "easy" ? 10 : difficulty === "medium" ? 15 : difficulty === "hard" ? 20 : 30;
+    e.preventDefault(); // Prevent the default form submission behavior
+    if (userInput.trim().toUpperCase() === answer.toUpperCase()) { // Check if guess is correct
+      let points = difficulty === "easy" ? 10 : difficulty === "medium" ? 15 : difficulty === "hard" ? 20 : difficulty === "allCountries" ? 5 : 0;
       setScore((prev) => prev + points); // Add points to score
       setMessage("Correct! Well done!");
       generateAnagram(); // Generate a new word
     } else {
-      handleWrongAnswer();
+      handleWrongAnswer(); // Handle incorrect answer
     }
   };
 
@@ -85,33 +116,17 @@ const App = () => {
 
   // Provide a hint for the current word (only for hard and expert)
   const getHint = () => {
-    if (["hard", "expert"].includes(difficulty)) {
-      if (hint.length < answer.length) {
+    if (["hard", "expert"].includes(difficulty)) { // Only available for hard and expert difficulty
+      if (hint.length < answer.length) { // If there are still letters to reveal
         setHintsUsed((prev) => prev + 1); // Increment hints used
         setHint(answer.slice(0, hint.length + 1)); // Reveal one more letter
       } else {
         setMessage("No more hints available!"); // If all hints are used
       }
     } else {
-      setMessage("Hints are not available for this difficulty level!");
+      setMessage("Hints are not available for this difficulty level!"); // Inform player if hints are not available
     }
   };
-
-  // Save the leaderboard to localStorage
-  const saveToLeaderboard = () => {
-    const name = prompt("Enter your name for the leaderboard:");
-    const newEntry = { name, score };
-    const updatedLeaderboard = [...leaderboard, newEntry].sort((a, b) => b.score - a.score).slice(0, 5);
-    setLeaderboard(updatedLeaderboard); // Update leaderboard
-    localStorage.setItem("leaderboard", JSON.stringify(updatedLeaderboard)); // Save to localStorage
-  };
-
-  // Use useEffect to regenerate anagram whenever difficulty changes
-  useEffect(() => {
-    if (gameStarted) {
-      generateAnagram(); // Regenerate the anagram when difficulty changes
-    }
-  }, [difficulty]);
 
   // JSX to render the game interface
   return (
@@ -119,7 +134,7 @@ const App = () => {
       <h1>Country Anagram Game</h1>
       <p>Score: {score}</p>
       {!gameStarted ? (
-        <button onClick={startGame} className="start-button">Start Game</button>
+        <button onClick={startGame} className="start-button">Start Game</button> // Start button
       ) : (
         <>
           <div className="settings">
@@ -129,38 +144,23 @@ const App = () => {
               <option value="medium">Medium</option>
               <option value="hard">Hard</option>
               <option value="expert">Expert</option>
+              <option value="allCountries">All Countries</option> {/* New option */}
             </select>
           </div>
           <div className="anagram-display">
-            <p>Unscramble this: <strong>{anagram}</strong></p>
+            <p>Unscramble this: <strong>{anagram}</strong></p> {/* Display scrambled word */}
           </div>
           <form onSubmit={handleSubmit} className="input-form">
-            <input type="text" value={userInput} onChange={(e) => setUserInput(e.target.value)} placeholder="Your guess" />
-            <button type="submit">Submit</button>
+            <input type="text" value={userInput} onChange={(e) => setUserInput(e.target.value)} placeholder="Your guess" /> {/* Input for guess */}
+            <button type="submit">Submit</button> {/* Submit button */}
           </form>
-          {message && <p className="message">{message}</p>}
+          {message && <p className="message">{message}</p>} {/* Show feedback message */}
           {["hard", "expert"].includes(difficulty) && (
-            <button onClick={getHint} className="hint-button">Get a Hint</button>
+            <button onClick={getHint} className="hint-button">Get a Hint</button> //* Button to get hint */}
           )}
-          {hint && <p className="hint">Hint: {hint}</p>}
-          <button onClick={generateAnagram} className="next-button">Next Word</button>
+          {hint && <p className="hint">Hint: {hint}</p>} {/* Show hint if available */}
+          <button onClick={generateAnagram} className="next-button">Next Word</button> {/* Button to generate next word */}
         </>
-      )}
-      <button onClick={() => setShowLeaderboard((prev) => !prev)} className="leaderboard-button">
-        {showLeaderboard ? "Hide Leaderboard" : "Show Leaderboard"}
-      </button>
-      {showLeaderboard && (
-        <div className="leaderboard">
-          <h2>Leaderboard</h2>
-          <ul>
-            {leaderboard.map((entry, index) => (
-              <li key={index}>{entry.name}: {entry.score}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {gameStarted && (
-        <button onClick={saveToLeaderboard} className="save-button">Save Score</button>
       )}
     </div>
   );
